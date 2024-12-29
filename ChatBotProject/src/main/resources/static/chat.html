@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Chat</title>
+    <script>
+        async function sendMessage() {
+            const userId = sessionStorage.getItem('userId'); 
+            const receiverId = document.getElementById("receiverDropdown").value;
+            const message = {
+                senderId: userId,
+                receiverId: receiverId,
+                message: document.getElementById("message").value
+            };
+
+            const response = await fetch('/api/messages/send', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(message)
+            });
+
+            document.getElementById("message").value = '';
+            loadMessages();
+        }
+
+        async function loadMessages() {
+            const userId = sessionStorage.getItem('userId');
+            const receiverId = document.getElementById("receiverDropdown").value;
+
+            if (!userId) {
+                console.error('User ID not found in session storage!');
+                return;
+            }
+
+            try {
+                document.getElementById('name').innerText = `Logged in as: ${userId}`;
+                const response = await fetch(`/api/messages/chat?sUserId=${encodeURIComponent(userId)}&rUserId=${encodeURIComponent(receiverId)}`);
+                
+                if (!response.ok) {
+                    throw new Error('Failed to fetch messages!');
+                }
+
+                const messages = await response.json();
+                const chatBox = document.getElementById("chatBox");
+                chatBox.innerHTML = messages.map(msg => `<p><strong>${msg.senderId}:</strong> ${msg.message} ${msg.timestamp}</p>`).join('');
+            } catch (error) {
+                console.error(error.message);
+            }
+        }
+
+        async function loadReceiverList() {
+            try {
+                const response = await fetch('/api/users/registeredData');
+                if (!response.ok) {
+                    throw new Error('Failed to fetch user list!');
+                }
+
+                const users = await response.json();
+                const dropdown = document.getElementById("receiverDropdown");
+                dropdown.innerHTML='<option value="" disabled selected>Select</option>'+
+
+                users.map(user => `<option value="${user.userId}">${user.userId}</option>`).join('');
+            } catch (error) {
+                console.error(error.message);
+            }
+        }
+
+        window.onload = async () => {
+            await loadReceiverList();
+            loadMessages();
+        };
+    </script>
+</head>
+<body>
+    <p id="name"></p>
+    
+    <div>
+        <label >Select Receiver:</label>
+        <select id="receiverDropdown" onchange="loadMessages()">
+       
+            <!-- Receiver options will be loaded here -->
+        </select>
+    </div>
+    
+    <div id="chatBox" style="border: 1px solid black; height: 300px; overflow-y: scroll;"></div>
+    
+    <input type="text" id="message">
+    <button onclick="sendMessage()">Send</button>
+</body>
+</html>
+ 
