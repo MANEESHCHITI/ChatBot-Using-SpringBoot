@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Login</title>
+     <style>
+  
+
+    
+        .navbar {
+            
+            color: black;
+            position: fixed;
+            display: flex;
+            flex-direction: column;
+            padding-left:250px;
+            padding-top:150px;
+        }
+
+        .content {
+            
+            padding-top: 100px;
+            margin-left: 500px;
+            font-size: 30px;
+
+        }
+       img{
+            padding-left: 150px;
+            width:1000px;
+            height:150px;
+        }
+        a{
+            font-size: 20px;
+            line-height: 100px;
+        }
+        .redirect{
+        	 padding-top: 150px;
+            margin-left: 500px;
+        }
+    </style>
+
+</head>
+<body>
+     <div>
+        <img src="./images/UpwardIqLogo.png">
+    </div>
+            
+    <div class="navbar">
+        
+        <a href="register.html">Register User</a>
+        <a href="login.html">Login User</a>
+        <a href="chat.html">Chat Window</a>
+    </div>
+    <div class="redirect"><a href="index.html">Home >> Login User</a></div>          
+<div>
+
+    <div class="content">
+       
+        <form onsubmit="loginUser(); return false;">
+           <table style="font-size: 30px;"> 
+            <tr>
+                <td>
+                    <label>User ID:</label>
+                </td>
+                <td>
+                    <input type="text" id="userId" required>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <label >Password: </label>
+                </td>
+                <td>
+                    <input type="password" id="password" required>
+                </td>
+            </tr>
+           
+            <tr>
+                <td>
+                    <button style="font-size: 20px;margin-left: 150px;margin-top: 20px;" type="submit">Login</button>
+                </td>
+            </tr>
+        </table>
+        </form>
+    </div>
+    <script>
+        async function loginUser() {
+            const userId = document.getElementById("userId").value;
+            const password = document.getElementById("password").value;
+
+            const response = await fetch(`/api/users/login?userId=${userId}&password=${password}`, {
+                method: 'POST'
+            });
+
+            const isAuthenticated = await response.json();
+            if (isAuthenticated) {
+            	
+            	 alert('Login successful!');
+            	sessionStorage.setItem('userId', userId);
+               /*  window.location = 'chat.html'; */
+               
+               
+            } else {
+                alert('Invalid credentials!');
+            }
+        }
+    </script>
+    </body>
+</html>
